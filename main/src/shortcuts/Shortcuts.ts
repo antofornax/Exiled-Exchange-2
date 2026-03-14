@@ -6,6 +6,7 @@ import {
   mergeTwoHotkeys,
 } from "../../../ipc/KeyToCode";
 import { typeInChat, stashSearch } from "./text-box";
+import { ctrlLeftClick } from "./ctrl-click";
 import { WidgetAreaTracker } from "../windowing/WidgetAreaTracker";
 import { HostClipboard } from "./HostClipboard";
 import { OcrWorker } from "../vision/link-main";
@@ -27,6 +28,8 @@ export class Shortcuts {
   private logKeys = false;
   private areaTracker: WidgetAreaTracker;
   private clipboard: HostClipboard;
+  /** Cursor position at the moment the price-check hotkey (e.g. Ctrl+D) was pressed. Used for auto-sell. */
+  private lastPriceCheckCursorPosition: { x: number; y: number } | null = null;
 
   static async create(
     logger: Logger,
@@ -73,6 +76,10 @@ export class Shortcuts {
     this.server.onEventAnyClient("CLIENT->MAIN::user-action", (e) => {
       if (e.action === "stash-search") {
         stashSearch(e.text, this.clipboard, this.overlay);
+      } else if (e.action === "ctrl-left-click") {
+        const position =
+          this.lastPriceCheckCursorPosition ?? e.position ?? undefined;
+        ctrlLeftClick(this.overlay, position);
       }
     });
 
@@ -212,6 +219,12 @@ export class Shortcuts {
             const { action } = entry;
 
             const pressPosition = screen.getCursorScreenPoint();
+            if (action.target === "price-check") {
+              this.lastPriceCheckCursorPosition = {
+                x: pressPosition.x,
+                y: pressPosition.y,
+              };
+            }
 
             this.clipboard
               .readItemText()

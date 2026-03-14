@@ -83,6 +83,7 @@ import {
   ref,
   nextTick,
   computed,
+  inject,
   ComponentPublicInstance,
 } from "vue";
 import { useI18n } from "vue-i18n";
@@ -103,7 +104,9 @@ import {
   createTradeRequest,
 } from "./trade/pathofexile-trade";
 import { AppConfig, TipsFrequency } from "@/web/Config";
+import { MainProcess } from "@/web/background/IPC";
 import { FilterPreset } from "./filters/interfaces";
+import type { WidgetManager } from "../overlay/interfaces";
 import { PriceCheckWidget } from "../overlay/interfaces";
 import { useLeagues } from "@/web/background/Leagues";
 import { randomTip, TIP_FREQUENCY_MAP } from "../help/tips";
@@ -138,8 +141,17 @@ export default defineComponent({
       type: Number,
       required: true,
     },
+    wmId: {
+      type: Number,
+      required: true,
+    },
+    itemPosition: {
+      type: Object as PropType<{ x: number; y: number }>,
+      default: undefined,
+    },
   },
   setup(props, ctx) {
+    const wm = inject<WidgetManager>("wm")!;
     const widget = computed(() => AppConfig<PriceCheckWidget>("price-check")!);
     const leagues = useLeagues();
 
@@ -370,7 +382,15 @@ export default defineComponent({
         return `https://${getTradeEndpoint()}/trade2/search/poe2/${itemFilters.value.trade.league}?q=${JSON.stringify(createTradeRequest(itemFilters.value, itemStats.value, props.item))}`;
       },
       onAutoSellItem() {
-        // TODO: implement auto-sell item
+        const position = props.itemPosition;
+        wm.hide(props.wmId);
+        MainProcess.sendEvent({
+          name: "CLIENT->MAIN::user-action",
+          payload: {
+            action: "ctrl-left-click",
+            ...(position && { position: { x: position.x, y: position.y } }),
+          },
+        });
       },
     };
   },

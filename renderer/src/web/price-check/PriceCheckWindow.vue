@@ -106,6 +106,8 @@
             :item="item.value"
             :advanced-check="advancedCheck"
             :rebuild-key="rebuildKey"
+            :wm-id="config.wmId"
+            :item-position="checkPosition"
             @item-editor-selection="handleItemEditorSelection"
           />
         </template>

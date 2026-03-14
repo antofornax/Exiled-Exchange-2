@@ -207,6 +207,10 @@ type IpcUserAction = Event<
       action: "stash-search";
       text: string;
     }
+  | {
+      action: "ctrl-left-click";
+      position?: { x: number; y: number };
+    }
 >;
 
 interface Event<TName extends string, TPayload = undefined> {
