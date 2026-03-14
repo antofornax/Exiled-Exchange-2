@@ -318,6 +318,7 @@
     "new_mods_icon": "Mostrar ícone para novos modificadores"
   },
   "trade_result": {
+    "sell": "Vender",
     "error": "Erro na solicitação do site de comércio",
     "matched": "Correspondência: {0}",
     "trade": "Troca",

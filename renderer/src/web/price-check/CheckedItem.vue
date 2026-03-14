@@ -21,6 +21,7 @@
       :stats="itemStats"
       :item="item"
       @select-result="onSearchResultSelect"
+      @auto-sell-result="onAutoSellFromResult"
     />
     <trade-bulk
       v-if="tradeAPI === 'bulk' && doSearch"
@@ -28,6 +29,7 @@
       :filters="itemFilters"
       :item="item"
       @select-result="onSearchResultSelect"
+      @auto-sell-result="onAutoSellFromResult"
     />
     <div class="flex justify-between items-center">
       <div class="flex gap-1 items-center" @mouseenter="handleSearchMouseenter">
@@ -396,6 +398,61 @@ export default defineComponent({
 
     const { t } = useI18n();
 
+    const onSearchResultSelect = (payload: {
+      priceAmount: number;
+      currency: string;
+    }) => {
+      autoSellPrice.value = String(payload.priceAmount);
+      const c = payload.currency?.toLowerCase() ?? "";
+      if (c.includes("annul")) autoSellCurrency.value = "annulment";
+      else if (c.includes("divine")) autoSellCurrency.value = "divine";
+      else if (c.includes("exalt")) autoSellCurrency.value = "exalted";
+      else if (c.includes("chaos")) autoSellCurrency.value = "chaos";
+      else autoSellCurrency.value = "none";
+    };
+
+    const onAutoSellItem = () => {
+      const position = props.itemPosition
+        ? { x: props.itemPosition.x, y: props.itemPosition.y }
+        : undefined;
+      let price: string | undefined;
+      if (autoSellPrice.value.length > 0) {
+        const curr = autoSellCurrency.value;
+        const labels: Record<Exclude<AutoSellCurrency, "none">, string> = {
+          annulment: "orb of annulment",
+          divine: "divine orb",
+          exalted: "exalted orb",
+          chaos: "chaos orb",
+        };
+        price =
+          curr === "none"
+            ? autoSellPrice.value
+            : `${autoSellPrice.value} ${labels[curr]}`;
+      } else {
+        price = undefined;
+      }
+      wm.hide(props.wmId);
+      const currency =
+        autoSellCurrency.value !== "none" ? autoSellCurrency.value : undefined;
+      MainProcess.sendEvent({
+        name: "CLIENT->MAIN::user-action",
+        payload: {
+          action: "ctrl-left-click",
+          position,
+          price,
+          currency,
+        },
+      });
+    };
+
+    const onAutoSellFromResult = (payload: {
+      priceAmount: number;
+      currency: string;
+    }) => {
+      onSearchResultSelect(payload);
+      onAutoSellItem();
+    };
+
     return {
       t,
       itemFilters,
@@ -422,48 +479,9 @@ export default defineComponent({
       makeTradeLink() {
         return `https://${getTradeEndpoint()}/trade2/search/poe2/${itemFilters.value.trade.league}?q=${JSON.stringify(createTradeRequest(itemFilters.value, itemStats.value, props.item))}`;
       },
-      onAutoSellItem() {
-        const position = props.itemPosition
-          ? { x: props.itemPosition.x, y: props.itemPosition.y }
-          : undefined;
-        let price: string | undefined;
-        if (autoSellPrice.value.length > 0) {
-          const curr = autoSellCurrency.value;
-          const labels: Record<Exclude<AutoSellCurrency, "none">, string> = {
-            annulment: "orb of annulment",
-            divine: "divine orb",
-            exalted: "exalted orb",
-            chaos: "chaos orb",
-          };
-          price =
-            curr === "none"
-              ? autoSellPrice.value
-              : `${autoSellPrice.value} ${labels[curr]}`;
-        } else {
-          price = undefined;
-        }
-        wm.hide(props.wmId);
-        const currency =
-          autoSellCurrency.value !== "none" ? autoSellCurrency.value : undefined;
-        MainProcess.sendEvent({
-          name: "CLIENT->MAIN::user-action",
-          payload: {
-            action: "ctrl-left-click",
-            position,
-            price,
-            currency,
-          },
-        });
-      },
-      onSearchResultSelect(payload: { priceAmount: number; currency: string }) {
-        autoSellPrice.value = String(payload.priceAmount);
-        const c = payload.currency?.toLowerCase() ?? "";
-        if (c.includes("annul")) autoSellCurrency.value = "annulment";
-        else if (c.includes("divine")) autoSellCurrency.value = "divine";
-        else if (c.includes("exalt")) autoSellCurrency.value = "exalted";
-        else if (c.includes("chaos")) autoSellCurrency.value = "chaos";
-        else autoSellCurrency.value = "none";
-      },
+      onAutoSellItem,
+      onSearchResultSelect,
+      onAutoSellFromResult,
       autoSellPriceStep(delta: number) {
         const s = autoSellPrice.value;
         const match = s.match(/^(\d+)/);

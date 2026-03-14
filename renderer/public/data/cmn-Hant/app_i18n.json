@@ -324,6 +324,7 @@
     "new_mods_icon": "顯示新詞綴圖標"
   },
   "trade_result": {
+    "sell": "出售",
     "error": "交易網站請求失敗",
     "matched": "匹配：{0}",
     "trade": "交易",

@@ -336,6 +336,7 @@
     "new_mods_icon": "Show icon for new mods"
   },
   "trade_result": {
+    "sell": "Sell",
     "error": "Trade site request failed",
     "matched": "Matched: {0}",
     "trade": "Trade",

@@ -302,6 +302,7 @@
     "new_mods_icon": "Symbol für neue Modifikatoren anzeigen"
   },
   "trade_result": {
+    "sell": "Verkaufen",
     "error": "Anfrage an die Handelsseite fehlgeschlagen",
     "matched": "Übereinstimmend: {0}",
     "trade": "Handel",

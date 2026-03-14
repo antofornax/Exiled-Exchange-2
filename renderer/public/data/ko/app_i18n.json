@@ -321,6 +321,7 @@
     "new_mods_icon": "새로 추가된 모드 보여주기"
   },
   "trade_result": {
+    "sell": "판매",
     "error": "거래소 응답 실패",
     "matched": "매치됨: {0}",
     "trade": "거래소",

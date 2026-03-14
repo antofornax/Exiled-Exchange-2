@@ -85,6 +85,9 @@
                 }}</span>
               </div>
             </th>
+            <th class="trade-table-heading">
+              <div class="px-1">{{ t(":sell") }}</div>
+            </th>
             <th v-if="showSeller" class="trade-table-heading w-full">
               <div class="px-2">{{ t(":seller") }}</div>
             </th>
@@ -149,6 +152,27 @@
                   >{{ t("You") }}</span
                 >
               </td>
+              <td class="px-1 whitespace-nowrap">
+                <button
+                  type="button"
+                  class="btn text-xs py-0.5 px-1"
+                  @click.stop="
+                    $emit('auto-sell-result', {
+                      priceAmount: Number(
+                        (result.exchangeAmount / result.itemAmount).toFixed(4),
+                      ),
+                      currency:
+                        selectedCurr === 'xchgExalted'
+                          ? 'exalted'
+                          : selectedCurr === 'xchgChaos'
+                            ? 'chaos'
+                            : 'divine',
+                    })
+                  "
+                >
+                  {{ t(":sell") }}
+                </button>
+              </td>
               <td v-if="showSeller" class="px-2 whitespace-nowrap">
                 <span
                   v-if="result.isMine"
@@ -202,7 +226,7 @@ const slowdown = artificialSlowdown(900);
 
 export default defineComponent({
   components: { OnlineFilter, TradeLinks, UiErrorBox },
-  emits: ["select-result"],
+  emits: ["select-result", "auto-sell-result"],
   props: {
     filters: {
       type: Object as PropType<ItemFilters>,

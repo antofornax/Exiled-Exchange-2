@@ -60,6 +60,9 @@
                 }}</span>
               </div>
             </th>
+            <th class="trade-table-heading">
+              <div class="px-1">{{ t(":sell") }}</div>
+            </th>
             <th v-if="showSeller" class="trade-table-heading w-full">
               <div class="px-2">{{ t(":seller") }}</div>
             </th>
@@ -79,6 +82,7 @@
               :item-level="filters.itemLevel"
               :quality="filters.quality"
               @select="$emit('select-result', { priceAmount: result.priceAmount, currency: result.priceCurrency })"
+              @auto-sell="$emit('auto-sell-result', { priceAmount: result.priceAmount, currency: result.priceCurrency })"
             />
           </template>
         </tbody>
@@ -147,7 +151,7 @@ const SHOW_RESULTS = 20;
 
 export default defineComponent({
   components: { OnlineFilter, TradeLinks, TradeItem, UiErrorBox, UiPopover },
-  emits: ["select-result"],
+  emits: ["select-result", "auto-sell-result"],
   props: {
     filters: {
       type: Object as PropType<ItemFilters>,

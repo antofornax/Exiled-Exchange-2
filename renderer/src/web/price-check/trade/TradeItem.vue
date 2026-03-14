@@ -86,6 +86,15 @@
         >{{ t("Gone") }}</span
       >
     </td>
+    <td class="px-1 whitespace-nowrap">
+      <button
+        type="button"
+        class="btn text-xs py-0.5 px-1"
+        @click.stop="$emit('auto-sell')"
+      >
+        {{ t(":sell") }}
+      </button>
+    </td>
     <td v-if="showSeller" class="px-2 whitespace-nowrap">
       <span
         v-if="result.isMine"
@@ -135,7 +144,7 @@ import { ItemCategory } from "@/parser";
 
 export default defineComponent({
   name: "TradeItem",
-  emits: ["select"],
+  emits: ["select", "auto-sell"],
   props: {
     result: {
       type: Object as PropType<
