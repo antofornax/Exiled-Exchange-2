@@ -37,13 +37,29 @@
         >
           {{ t("Search") }}
         </button>
-        <input
-          v-model.trim="autoSellPrice"
-          type="text"
-          class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-gray-200 w-20 placeholder-gray-500"
-          :placeholder="t('item.auto_sell_price_placeholder')"
-          @keydown.enter="onAutoSellItem"
-        />
+        <div class="flex items-center gap-0.5">
+          <input
+            v-model.trim="autoSellPrice"
+            type="text"
+            class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-gray-200 w-20 placeholder-gray-500"
+            :placeholder="t('item.auto_sell_price_placeholder')"
+            @keydown.enter="onAutoSellItem"
+          />
+          <span class="flex flex-col">
+            <button
+              type="button"
+              class="bg-gray-800 text-gray-400 hover:bg-gray-600 hover:text-gray-200 text-[0.5rem] leading-none py-0.5 px-0.5 rounded cursor-pointer border-none"
+              @click="autoSellPriceStep(1)"
+              aria-label="Increment"
+            >▲</button>
+            <button
+              type="button"
+              class="bg-gray-800 text-gray-400 hover:bg-gray-600 hover:text-gray-200 text-[0.5rem] leading-none py-0.5 px-0.5 rounded cursor-pointer border-none"
+              @click="autoSellPriceStep(-1)"
+              aria-label="Decrement"
+            >▼</button>
+          </span>
+        </div>
         <button class="btn whitespace-nowrap" @click="onAutoSellItem">
           {{ t("item.auto_sell_item") }}
         </button>
@@ -406,6 +422,17 @@ export default defineComponent({
             price,
           },
         });
+      },
+      autoSellPriceStep(delta: number) {
+        const s = autoSellPrice.value;
+        const match = s.match(/^(\d+)/);
+        const n = match ? parseInt(match[1], 10) : 0;
+        const next = Math.max(0, n + delta);
+        if (match) {
+          autoSellPrice.value = s.replace(/^\d+/, String(next));
+        } else {
+          autoSellPrice.value = String(next);
+        }
       },
     };
   },

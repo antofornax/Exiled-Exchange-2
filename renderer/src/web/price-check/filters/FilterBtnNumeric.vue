@@ -3,16 +3,22 @@
     <button @click="filter.disabled = !filter.disabled" class="pl-2">
       {{ name }}
     </button>
-    <input
-      :class="$style.input"
-      step="any"
-      type="number"
-      v-model.number="inputMin"
-      @focus="inputFocus"
-      @blur="inputMinBlur"
-      @mousewheel.stop
-      :style="{ width: `${1.2 + Math.max(String(inputMin).length, 2)}ch` }"
-    />
+    <div :class="$style.inputWrap">
+      <input
+        :class="$style.input"
+        step="any"
+        type="number"
+        v-model.number="inputMin"
+        @focus="inputFocus"
+        @blur="inputMinBlur"
+        @mousewheel.stop
+        :style="{ width: `${1.2 + Math.max(String(inputMin).length, 2)}ch` }"
+      />
+      <span :class="$style.arrows">
+        <button type="button" :class="$style.arrowBtn" @click="increment" aria-label="Increment">▲</button>
+        <button type="button" :class="$style.arrowBtn" @click="decrement" aria-label="Decrement">▼</button>
+      </span>
+    </div>
     <template v-if="'max' in filter">
       <span>–</span>
       <input
@@ -102,6 +108,20 @@ export default defineComponent({
           props.filter.disabled = true;
         }
       },
+      increment() {
+        const n = typeof _inputMin.value === "number" ? _inputMin.value : 0;
+        const next = n + 1;
+        _inputMin.value = next;
+        props.filter.value = next;
+        props.filter.disabled = false;
+      },
+      decrement() {
+        const n = typeof _inputMin.value === "number" ? _inputMin.value : 0;
+        const next = Math.max(0, n - 1);
+        _inputMin.value = next;
+        props.filter.value = next;
+        props.filter.disabled = false;
+      },
     };
   },
 });
@@ -117,6 +137,37 @@ export default defineComponent({
   &.active {
     @apply border-gray-500;
   }
+}
+
+.inputWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+
+.arrows {
+  display: inline-flex;
+  flex-direction: column;
+  margin-left: 1px;
+}
+
+.arrowBtn {
+  @apply bg-gray-800 text-gray-400;
+  line-height: 0.65rem;
+  padding: 0 2px;
+  font-size: 0.5rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 1px;
+  user-select: none;
+}
+
+.arrowBtn:hover {
+  @apply bg-gray-600 text-gray-200;
+}
+
+.arrowBtn:active {
+  @apply bg-gray-500;
 }
 
 .input {
