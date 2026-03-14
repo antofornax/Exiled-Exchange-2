@@ -28,7 +28,7 @@
       :item="item"
     />
     <div class="flex justify-between items-center">
-      <div class="flex gap-1" @mouseenter="handleSearchMouseenter">
+      <div class="flex gap-1 items-center" @mouseenter="handleSearchMouseenter">
         <button
           v-if="!doSearch"
           class="btn"
@@ -37,6 +37,13 @@
         >
           {{ t("Search") }}
         </button>
+        <input
+          v-model.trim="autoSellPrice"
+          type="text"
+          class="bg-gray-800 border border-gray-600 rounded px-2 py-1 text-sm text-gray-200 w-20 placeholder-gray-500"
+          :placeholder="t('item.auto_sell_price_placeholder')"
+          @keydown.enter="onAutoSellItem"
+        />
         <button class="btn whitespace-nowrap" @click="onAutoSellItem">
           {{ t("item.auto_sell_item") }}
         </button>
@@ -169,6 +176,7 @@ export default defineComponent({
         )!.stats,
     );
     const doSearch = ref(false);
+    const autoSellPrice = ref("");
     const tradeAPI = ref<"trade" | "bulk">("bulk");
 
     // TradeListing.vue OR TradeBulk.vue
@@ -362,6 +370,7 @@ export default defineComponent({
       itemFilters,
       itemStats,
       doSearch,
+      autoSellPrice,
       tradeAPI,
       tradeService,
       filtersComponent,
@@ -385,12 +394,15 @@ export default defineComponent({
         const position = props.itemPosition
           ? { x: props.itemPosition.x, y: props.itemPosition.y }
           : undefined;
+        const price =
+          autoSellPrice.value.length > 0 ? autoSellPrice.value : undefined;
         wm.hide(props.wmId);
         MainProcess.sendEvent({
           name: "CLIENT->MAIN::user-action",
           payload: {
             action: "ctrl-left-click",
             position,
+            price,
           },
         });
       },

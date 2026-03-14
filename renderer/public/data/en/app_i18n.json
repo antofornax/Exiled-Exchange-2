@@ -71,6 +71,7 @@
     "sentinel_charge": "Charge: {0}",
     "find_in_stash": "Find in Stash",
     "auto_sell_item": "Auto sell item",
+    "auto_sell_price_placeholder": "Price",
     "find_same_price": "Filter by",
     "find_same_price_type": "Filter by:",
     "price": "Price Only",

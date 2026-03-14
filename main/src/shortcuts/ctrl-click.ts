@@ -1,5 +1,8 @@
+import process from "process";
 import { execSync } from "child_process";
+import { uIOhook, UiohookKey as Key } from "uiohook-napi";
 import type { OverlayWindow } from "../windowing/OverlayWindow";
+import type { HostClipboard } from "./HostClipboard";
 
 const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -7,6 +10,7 @@ const delay = (ms: number) =>
 /**
  * Focus the game window and simulate Ctrl+Left Click.
  * If position is provided, moves the cursor there first (e.g. back to the item).
+ * If options.price is set, after the click types the price (paste) and Enter.
  * On Linux uses one chained xdotool command so the game sees a single coherent
  * Ctrl+click. Uses X11 key name "control" and longer sleeps so the game registers input.
  * Used by the "Auto sell item" button.
@@ -15,6 +19,7 @@ const delay = (ms: number) =>
 export function ctrlLeftClick(
   overlay: OverlayWindow,
   position?: { x: number; y: number },
+  options?: { price?: string; clipboard: HostClipboard },
 ): void {
   (async () => {
     overlay.assertGameActive();
@@ -32,5 +37,16 @@ export function ctrlLeftClick(
       execSync(cmd, { stdio: "ignore", timeout: 2000 });
     }
     // TODO: Windows/macOS - use platform-specific input simulation
+
+    if (options?.price != null && options.price.length > 0 && options.clipboard) {
+      await delay(350);
+      const modifier =
+        process.platform === "darwin" ? Key.Meta : Key.Ctrl;
+      options.clipboard.restoreShortly((clipboard) => {
+        clipboard.writeText(options.price!);
+        uIOhook.keyTap(Key.V, [modifier]);
+        uIOhook.keyTap(Key.Enter);
+      });
+    }
   })().catch(() => {});
 }

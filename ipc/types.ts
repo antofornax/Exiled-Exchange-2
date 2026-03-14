@@ -211,6 +211,8 @@ type IpcUserAction = Event<
   | {
       action: "ctrl-left-click";
       position?: { x: number; y: number };
+      /** If set, after the ctrl+click type this price and press Enter. */
+      price?: string;
     }
 >;
 

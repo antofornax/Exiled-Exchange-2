@@ -142,7 +142,10 @@ export class Shortcuts {
         if (position != null) {
           this.lastPriceCheckCursorPosition = position;
         }
-        ctrlLeftClick(this.overlay, position);
+        ctrlLeftClick(this.overlay, position, {
+          price: e.price,
+          clipboard: this.clipboard,
+        });
       }
     });
 
