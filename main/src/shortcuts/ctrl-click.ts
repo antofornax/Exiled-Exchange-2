@@ -31,6 +31,63 @@ function clickAt(x: number, y: number) {
 }
 
 /**
+ * Linux only: get IDs of slave (physical) pointer devices.
+ * We disable these during auto-sell so the user cannot move the mouse;
+ * xdotool synthetic events still work because they use XTest, not these devices.
+ */
+function getSlavePointerIds(): number[] {
+  if (process.platform !== "linux") return [];
+  try {
+    const out = execSync("xinput list", {
+      encoding: "utf8",
+      timeout: 2000,
+    });
+    const ids: number[] = [];
+    // Lines like "   ↳ Logitech USB Receiver    id=10    [slave  pointer  (2)]"
+    const re = /id=(\d+)\s+\[slave\s+pointer/;
+    for (const line of out.split("\n")) {
+      const m = line.match(re);
+      if (m) ids.push(parseInt(m[1], 10));
+    }
+    return ids;
+  } catch {
+    return [];
+  }
+}
+
+/** Linux only: disable slave pointers so user cannot move mouse during auto-sell. Returns ids that were disabled. */
+function disablePointer(): number[] {
+  if (process.platform !== "linux") return [];
+  const ids = getSlavePointerIds();
+  for (const id of ids) {
+    try {
+      execSync(`xinput disable ${id}`, {
+        stdio: "ignore",
+        timeout: 2000,
+      });
+    } catch {
+      // skip this device
+    }
+  }
+  return ids;
+}
+
+/** Linux only: re-enable pointer devices by id. Call in finally after disablePointer(). */
+function enablePointer(ids: number[]): void {
+  if (process.platform !== "linux" || ids.length === 0) return;
+  for (const id of ids) {
+    try {
+      execSync(`xinput enable ${id}`, {
+        stdio: "ignore",
+        timeout: 2000,
+      });
+    } catch {
+      // ignore; device may already be enabled
+    }
+  }
+}
+
+/**
  * Focus the game window and simulate Ctrl+Left Click.
  * If position is provided, moves the cursor there first (e.g. back to the item).
  * If options.currency is set, after the ctrl+click runs: click dropdown → click currency option → click price box.
@@ -53,43 +110,48 @@ export function ctrlLeftClick(
     overlay.assertGameActive();
     await delay(120);
 
-    if (process.platform === "linux") {
-      // Single rounding here; position is already in screen pixels from main.
-      const x = position ? Math.round(position.x) : "";
-      const y = position ? Math.round(position.y) : "";
-      const movePart =
-        x !== "" && y !== ""
-          ? `mousemove --sync ${x} ${y} sleep 0.2 `
-          : "";
-      const cmd = `xdotool ${movePart}keydown control sleep 0.15 click 1 sleep 0.1 keyup control`;
-      execSync(cmd, { stdio: "ignore", timeout: 2000 });
-    }
-    // TODO: Windows/macOS - use platform-specific input simulation
+    const disabledPointerIds = disablePointer();
+    try {
+      if (process.platform === "linux") {
+        // Single rounding here; position is already in screen pixels from main.
+        const x = position ? Math.round(position.x) : "";
+        const y = position ? Math.round(position.y) : "";
+        const movePart =
+          x !== "" && y !== ""
+            ? `mousemove --sync ${x} ${y} sleep 0.2 `
+            : "";
+        const cmd = `xdotool ${movePart}keydown control sleep 0.15 click 1 sleep 0.1 keyup control`;
+        execSync(cmd, { stdio: "ignore", timeout: 2000 });
+      }
+      // TODO: Windows/macOS - use platform-specific input simulation
 
-    if (options?.currency) {
-      await delay(350);
-      clickAt(CURRENCY_CLICKS.dropdown.x, CURRENCY_CLICKS.dropdown.y);
-      await smallDelay();
-      const currPos = CURRENCY_CLICKS[options.currency];
-      clickAt(currPos.x, currPos.y);
-      await smallDelay();
-      clickAt(CURRENCY_CLICKS.priceBox.x, CURRENCY_CLICKS.priceBox.y);
-      await smallDelay();
-      await delay(150);
-    }
+      if (options?.currency) {
+        await delay(350);
+        clickAt(CURRENCY_CLICKS.dropdown.x, CURRENCY_CLICKS.dropdown.y);
+        await smallDelay();
+        const currPos = CURRENCY_CLICKS[options.currency];
+        clickAt(currPos.x, currPos.y);
+        await smallDelay();
+        clickAt(CURRENCY_CLICKS.priceBox.x, CURRENCY_CLICKS.priceBox.y);
+        await smallDelay();
+        await delay(150);
+      }
 
-    if (options?.price != null && options.price.length > 0 && options.clipboard) {
-      if (!options?.currency) await delay(350);
-      const modifier =
-        process.platform === "darwin" ? Key.Meta : Key.Ctrl;
-      uIOhook.keyTap(Key.A, [modifier]);
-      await smallDelay();
-      options.clipboard.restoreShortly((clipboard) => {
-        clipboard.writeText(options.price!);
-        uIOhook.keyTap(Key.V, [modifier]);
-      });
-      await smallDelay();
-      uIOhook.keyTap(Key.Enter);
+      if (options?.price != null && options.price.length > 0 && options.clipboard) {
+        if (!options?.currency) await delay(350);
+        const modifier =
+          process.platform === "darwin" ? Key.Meta : Key.Ctrl;
+        uIOhook.keyTap(Key.A, [modifier]);
+        await smallDelay();
+        options.clipboard.restoreShortly((clipboard) => {
+          clipboard.writeText(options.price!);
+          uIOhook.keyTap(Key.V, [modifier]);
+        });
+        await smallDelay();
+        uIOhook.keyTap(Key.Enter);
+      }
+    } finally {
+      enablePointer(disabledPointerIds);
     }
   })().catch(() => {});
 }
