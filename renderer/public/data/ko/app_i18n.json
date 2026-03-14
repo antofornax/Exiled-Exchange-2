@@ -67,6 +67,7 @@
     "gem_level": "젬 레벨: {0}",
     "sentinel_charge": "Charge: {0}",
     "find_in_stash": "보관함에서 찾기",
+    "auto_sell_item": "자동 판매",
     "find_same_price": "Filter by",
     "find_same_price_type": "Filter by:",
     "price": "Price Only",

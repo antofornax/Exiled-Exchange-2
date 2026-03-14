@@ -70,6 +70,7 @@
     "augment_sockets": "Ranuras: {0}",
     "sentinel_charge": "Carga: {0}",
     "find_in_stash": "Encontrar en el alijo",
+    "auto_sell_item": "Vender objeto automáticamente",
     "find_same_price": "Filter by",
     "find_same_price_type": "Filter by:",
     "price": "Price Only",

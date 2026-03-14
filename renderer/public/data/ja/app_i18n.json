@@ -70,6 +70,7 @@
     "augment_sockets": "ソケット: {0}",
     "sentinel_charge": "チャージ: {0}",
     "find_in_stash": "スタッシュで見つける",
+    "auto_sell_item": "自動売却",
     "find_same_price": "Filter by",
     "find_same_price_type": "Filter by:",
     "price": "Price Only",

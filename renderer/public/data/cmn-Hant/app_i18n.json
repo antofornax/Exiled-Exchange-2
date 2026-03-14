@@ -70,6 +70,7 @@
     "augment_sockets": "插槽：{0}",
     "sentinel_charge": "充能：{0}",
     "find_in_stash": "在倉庫中尋找",
+    "auto_sell_item": "自動出售物品",
     "find_same_price": "Filter by",
     "find_same_price_type": "Filter by:",
     "price": "Price Only",

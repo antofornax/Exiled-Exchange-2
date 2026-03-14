@@ -19,6 +19,9 @@
       >
         <i class="fas fa-dollar text-xs" />
       </button>
+      <button class="btn flex-1 whitespace-nowrap" @click="onAutoSellItem">
+        {{ t("item.auto_sell_item") }}
+      </button>
     </div>
     <div
       v-if="weaponDPS"
@@ -62,6 +65,9 @@ function openCoE() {
 }
 function findByPrice() {
   actions.findSamePricedItems(props.item);
+}
+function onAutoSellItem() {
+  // TODO: implement auto-sell item
 }
 
 const showCoE = computed(() => {

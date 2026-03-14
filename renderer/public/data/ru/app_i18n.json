@@ -86,6 +86,7 @@
     "gem_level": "Уровень: {0}",
     "sentinel_charge": "Заряд: {0}",
     "find_in_stash": "Найти в тайнике",
+    "auto_sell_item": "Авто продажа предмета",
     "find_same_price": "Filter by",
     "find_same_price_type": "Filter by:",
     "price": "Price Only",

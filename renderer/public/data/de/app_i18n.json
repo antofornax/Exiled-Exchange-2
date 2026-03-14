@@ -70,6 +70,7 @@
     "augment_sockets": "Fassungen: {0}",
     "sentinel_charge": "Ladung: {0}",
     "find_in_stash": "Im Versteck finden",
+    "auto_sell_item": "Gegenstand automatisch verkaufen",
     "find_same_price": "Filter by",
     "find_same_price_type": "Filter by:",
     "price": "Price Only",

@@ -27,10 +27,18 @@
       :filters="itemFilters"
       :item="item"
     />
-    <div v-if="!doSearch" class="flex justify-between items-center">
-      <div class="flex w-40" @mouseenter="handleSearchMouseenter">
-        <button class="btn" @click="doSearch = true" style="min-width: 5rem">
+    <div class="flex justify-between items-center">
+      <div class="flex gap-1" @mouseenter="handleSearchMouseenter">
+        <button
+          v-if="!doSearch"
+          class="btn"
+          @click="doSearch = true"
+          style="min-width: 5rem"
+        >
           {{ t("Search") }}
+        </button>
+        <button class="btn whitespace-nowrap" @click="onAutoSellItem">
+          {{ t("item.auto_sell_item") }}
         </button>
       </div>
       <div class="flex flex-row gap-1">
@@ -360,6 +368,9 @@ export default defineComponent({
       },
       makeTradeLink() {
         return `https://${getTradeEndpoint()}/trade2/search/poe2/${itemFilters.value.trade.league}?q=${JSON.stringify(createTradeRequest(itemFilters.value, itemStats.value, props.item))}`;
+      },
+      onAutoSellItem() {
+        // TODO: implement auto-sell item
       },
     };
   },
