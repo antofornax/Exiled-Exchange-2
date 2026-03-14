@@ -109,6 +109,9 @@
     <ui-checkbox class="mb-4" v-model="activateStockFilter">{{
       t(":select_stock")
     }}</ui-checkbox>
+    <ui-checkbox class="mb-4" v-model="limitItemLevelToUseful">{{
+      t(":limit_item_level_to_useful")
+    }}</ui-checkbox>
     <div class="mb-4">
       <div class="flex-1 mb-1">{{ t(":show_volume") }}</div>
       <div class="mb-1 flex">
@@ -271,6 +274,10 @@ export default defineComponent({
       activateStockFilter: configModelValue(
         () => configWidget.value,
         "activateStockFilter",
+      ),
+      limitItemLevelToUseful: configModelValue(
+        () => configWidget.value,
+        "limitItemLevelToUseful",
       ),
       showCursor: configModelValue(() => configWidget.value, "showCursor"),
       builtinBrowser: configModelValue(

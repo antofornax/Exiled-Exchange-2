@@ -209,6 +209,7 @@ export default defineComponent({
               : undefined,
           defaultAllSelected: widget.value.defaultAllSelected,
           autoFillEmptyAugmentSockets: widget.value.autoFillEmptyRuneSockets,
+          limitItemLevelToUseful: widget.value.limitItemLevelToUseful,
         });
 
         if (

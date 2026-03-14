@@ -153,7 +153,7 @@ export interface Config {
 }
 
 export const defaultConfig = (): Config => ({
-  configVersion: 29,
+  configVersion: 30,
   overlayKey: "Shift + Space",
   overlayBackground: "rgba(129, 139, 149, 0.15)",
   overlayBackgroundClose: true,
@@ -619,6 +619,16 @@ function upgradeConfig(_config: Config): Config {
     config.readClientLog = false; // default to false, opt-in only
 
     config.configVersion = 29;
+  }
+
+  if (config.configVersion < 30) {
+    const priceCheck = config.widgets.find(
+      (w) => w.wmType === "price-check",
+    ) as widget.PriceCheckWidget | undefined;
+    if (priceCheck && priceCheck.limitItemLevelToUseful === undefined) {
+      priceCheck.limitItemLevelToUseful = true;
+    }
+    config.configVersion = 30;
   }
   return config as unknown as Config;
 }

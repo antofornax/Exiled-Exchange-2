@@ -229,6 +229,7 @@ export default defineComponent({
         defaultAllSelected: false,
         itemHoverTooltip: "keybind",
         autoFillEmptyRuneSockets: false,
+        limitItemLevelToUseful: true,
         alwaysShowTier: false,
         openItemEditorAbove: false,
         coreCurrency: "exalted",

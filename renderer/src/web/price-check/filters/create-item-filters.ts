@@ -30,6 +30,8 @@ interface CreateOptions {
   exact: boolean;
   useEn: boolean;
   autoFillEmptyAugmentSockets: PriceCheckWidget["autoFillEmptyRuneSockets"];
+  /** When true (default), cap item level to max useful for category; when false, use actual item level. */
+  limitItemLevelToUseful?: boolean;
 }
 
 export function createFilters(
@@ -399,8 +401,11 @@ export function createFilters(
         };
       } else {
         // TODO limit level by item type
+        const capItemLevel = opts.limitItemLevelToUseful !== false;
         filters.itemLevel = {
-          value: Math.min(item.itemLevel, maxUsefulItemLevel(item.category)),
+          value: capItemLevel
+            ? Math.min(item.itemLevel, maxUsefulItemLevel(item.category))
+            : item.itemLevel,
           disabled:
             !opts.exact ||
             item.category === ItemCategory.Flask ||

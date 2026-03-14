@@ -54,6 +54,8 @@ export interface PriceCheckWidget extends Widget {
   defaultAllSelected: boolean;
   itemHoverTooltip: "off" | "keybind" | "always";
   autoFillEmptyRuneSockets: "Iron Rune" | false;
+  /** When true (default), cap item level filter to max useful for the category; when false, use actual item level. */
+  limitItemLevelToUseful: boolean;
   alwaysShowTier: boolean;
   openItemEditorAbove: boolean;
   coreCurrency: "exalted" | "chaos";
