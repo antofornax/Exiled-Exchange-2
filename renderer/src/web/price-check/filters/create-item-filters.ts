@@ -253,12 +253,11 @@ export function createFilters(
   }
 
   if (item.augmentSockets) {
-    if (item.augmentSockets.current) {
-      filters.augmentSockets = {
-        value: item.augmentSockets.current,
-        disabled: item.augmentSockets.current <= item.augmentSockets.normal,
-      };
-    }
+    const current = item.augmentSockets.current ?? 0;
+    filters.augmentSockets = {
+      value: current,
+      disabled: current <= item.augmentSockets.normal,
+    };
     if (item.augmentSockets.empty > 0 && item.rarity !== ItemRarity.Unique) {
       const type = isArmourOrWeaponOrCaster(item.category);
       if (
