@@ -394,6 +394,8 @@
     "accurate_collapsed": "Anzeige für reduzierte Einträge anzeigen",
     "auto_search": "Automatische Suche beim Drücken von",
     "select_stock": "Immer den \"Bestand\"-Filter auswählen",
+    "max_useful_item_level": "Cap item level to max useful (82 for most items, 81 for wands/staves)",
+    "max_useful_item_level_cap": "Max item level:",
     "show_prediction": "Preisschätzung anzeigen",
     "remember_currency": "Filter für Währungsangebot merken",
     "show_suggest_warning": "Warnung für falsche Preisprüfung",

@@ -398,6 +398,8 @@
     "accurate_collapsed": "Mostrar indicação em listagens colapsadas",
     "auto_search": "Realizar uma busca automática ao pressionar",
     "select_stock": "Sempre selecionar o filtro 'Estoque'",
+    "max_useful_item_level": "Cap item level to max useful (82 for most items, 81 for wands/staves)",
+    "max_useful_item_level_cap": "Max item level:",
     "show_prediction": "Mostrar previsão de preços",
     "remember_currency": "Lembrar o filtro de moeda de compra",
     "show_suggest_warning": "Aviso de verificação de preços incorreta",

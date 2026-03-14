@@ -422,6 +422,8 @@
     "accurate_collapsed": "Show indication on collapsed listings",
     "auto_search": "Perform an auto search, when pressing",
     "select_stock": "Always select \"Stock\" filter",
+    "max_useful_item_level": "Cap item level to max useful (82 for most items, 81 for wands/staves)",
+    "max_useful_item_level_cap": "Max item level:",
     "show_prediction": "Show price prediction",
     "remember_currency": "Remember the Buyout Currency filter",
     "show_suggest_warning": "Price check wrong warning",

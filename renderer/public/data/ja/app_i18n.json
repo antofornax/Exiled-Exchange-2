@@ -409,6 +409,8 @@
     "accurate_collapsed": "折りたたまれたインジケーターを表示",
     "auto_search": "押すと自動検索を実行",
     "select_stock": "常に\"在庫\"フィルターを選択",
+    "max_useful_item_level": "Cap item level to max useful (82 for most items, 81 for wands/staves)",
+    "max_useful_item_level_cap": "Max item level:",
     "show_prediction": "価格予測を表示",
     "remember_currency": "バイアウト価格の通貨フィルターを記憶",
     "default_all_selected": "Default all filters to enabled",

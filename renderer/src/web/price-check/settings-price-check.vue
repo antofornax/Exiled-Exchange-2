@@ -109,6 +109,19 @@
     <ui-checkbox class="mb-4" v-model="activateStockFilter">{{
       t(":select_stock")
     }}</ui-checkbox>
+    <ui-checkbox class="mb-4" v-model="maxUsefulItemLevel">{{
+      t(":max_useful_item_level")
+    }}</ui-checkbox>
+    <div v-if="maxUsefulItemLevel" class="mb-4 flex items-center gap-2">
+      <span>{{ t(":max_useful_item_level_cap") }}</span>
+      <input
+        v-model.number="maxUsefulItemLevelCap"
+        type="number"
+        min="1"
+        max="100"
+        class="rounded bg-gray-900 px-1 block w-16 font-poe text-center"
+      />
+    </div>
     <div class="mb-4">
       <div class="flex-1 mb-1">{{ t(":show_volume") }}</div>
       <div class="mb-1 flex">
@@ -272,6 +285,20 @@ export default defineComponent({
         () => configWidget.value,
         "activateStockFilter",
       ),
+      maxUsefulItemLevel: configModelValue(
+        () => configWidget.value,
+        "maxUsefulItemLevel",
+      ),
+      maxUsefulItemLevelCap: computed<number>({
+        get() {
+          return configWidget.value.maxUsefulItemLevelCap;
+        },
+        set(value: number) {
+          if (typeof value !== "number" || !Number.isFinite(value)) return;
+          const clamped = Math.min(Math.max(Math.floor(value), 1), 100);
+          configWidget.value.maxUsefulItemLevelCap = clamped;
+        },
+      }),
       showCursor: configModelValue(() => configWidget.value, "showCursor"),
       builtinBrowser: configModelValue(
         () => configWidget.value,

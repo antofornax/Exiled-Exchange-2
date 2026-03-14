@@ -181,6 +181,8 @@ export default defineComponent({
               : undefined,
           defaultAllSelected: widget.value.defaultAllSelected,
           autoFillEmptyAugmentSockets: widget.value.autoFillEmptyRuneSockets,
+          maxUsefulItemLevel: widget.value.maxUsefulItemLevel,
+          maxUsefulItemLevelCap: widget.value.maxUsefulItemLevelCap,
         });
 
         if (

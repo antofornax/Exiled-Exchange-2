@@ -76,6 +76,8 @@ describe("Create Filter for uncut gems", () => {
       exact: true,
       useEn: true,
       autoFillEmptyAugmentSockets: false as const,
+      maxUsefulItemLevel: false,
+      maxUsefulItemLevelCap: 82,
     };
 
     const result = createFilters(gem, opts);

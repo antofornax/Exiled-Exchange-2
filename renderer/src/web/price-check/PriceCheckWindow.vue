@@ -231,6 +231,8 @@ export default defineComponent({
         openItemEditorAbove: false,
         coreCurrency: "exalted",
         currencyVolume: "both",
+        maxUsefulItemLevel: false,
+        maxUsefulItemLevelCap: 82,
       };
     },
   } satisfies WidgetSpec,

@@ -22,6 +22,8 @@ export function createPresets(
     useEn: boolean;
     defaultAllSelected: boolean;
     autoFillEmptyAugmentSockets: PriceCheckWidget["autoFillEmptyRuneSockets"];
+    maxUsefulItemLevel: boolean;
+    maxUsefulItemLevelCap: number;
   },
 ): { presets: FilterPreset[]; active: string } {
   if (item.info.refName === "Expedition Logbook") {

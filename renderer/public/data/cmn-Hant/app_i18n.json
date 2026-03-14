@@ -409,6 +409,8 @@
     "accurate_collapsed": "在折疊的列表中顯示指示",
     "auto_search": "按下時自動搜尋",
     "select_stock": "始終選擇“庫存”過濾器",
+    "max_useful_item_level": "Cap item level to max useful (82 for most items, 81 for wands/staves)",
+    "max_useful_item_level_cap": "Max item level:",
     "show_prediction": "顯示價格預測",
     "remember_currency": "記住買方貨幣過濾器",
     "default_all_selected": "Default all filters to enabled",
