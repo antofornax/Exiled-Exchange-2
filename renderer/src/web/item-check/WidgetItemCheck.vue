@@ -82,7 +82,7 @@ registerActions();
 MainProcess.onEvent("MAIN->CLIENT::item-text", (e) => {
   if (e.target !== "item-check") return;
 
-  checkPosition.value = e.position;
+  if (e.position != null) checkPosition.value = e.position;
   item.value = parseClipboard(e.clipboard).unwrapOr(null);
   if (item.value) {
     wm.show(props.config.wmId);

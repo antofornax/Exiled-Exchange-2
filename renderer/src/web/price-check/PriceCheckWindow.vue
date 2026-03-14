@@ -301,7 +301,7 @@ export default defineComponent({
       if (e.target !== "price-check") return;
       performance.mark("price-check-event");
 
-      if (Host.isElectron && !e.focusOverlay) {
+      if (Host.isElectron && !e.focusOverlay && e.position != null) {
         // everything in CSS pixels
         const width = 28.75 * AppConfig().fontSize;
         const screenX =
@@ -329,7 +329,7 @@ export default defineComponent({
       }
       closeBrowser();
       wm.show(props.config.wmId);
-      checkPosition.value = e.position;
+      if (e.position != null) checkPosition.value = e.position;
       advancedCheck.value = e.focusOverlay;
       performance.mark("price-check-start-handling-item");
       item.value = handleItemPaste({ clipboard: e.clipboard, item: e.item });

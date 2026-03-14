@@ -172,7 +172,8 @@ type IpcItemText = Event<
     target: string;
     clipboard: string;
     item?: unknown;
-    position: { x: number; y: number };
+    /** Only set when game window had focus at hotkey press (reliable item position). */
+    position?: { x: number; y: number };
     focusOverlay: boolean;
   }
 >;

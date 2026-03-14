@@ -1,5 +1,11 @@
 import { screen, globalShortcut } from "electron";
-import { uIOhook, UiohookKey, UiohookWheelEvent } from "uiohook-napi";
+import type { Point } from "electron";
+import {
+  uIOhook,
+  UiohookKey,
+  UiohookWheelEvent,
+  UiohookMouseEvent,
+} from "uiohook-napi";
 import {
   isModKey,
   KeyToElectron,
@@ -22,14 +28,58 @@ const UiohookToName = Object.fromEntries(
   Object.entries(UiohookKey).map(([k, v]) => [v, k]),
 );
 
+/** Convert DIP point to screen pixels on Linux (same as WidgetAreaTracker). xdotool needs screen pixels. */
+function dipToScreenPointLinux(point: Point): Point {
+  const display = screen.getDisplayNearestPoint(point);
+  const scale = (v: number, bound: number, native: number) =>
+    (v - bound + native) * display.scaleFactor;
+  return {
+    x: Math.round(
+      scale(point.x, display.bounds.x, display.nativeOrigin.x),
+    ),
+    y: Math.round(
+      scale(point.y, display.bounds.y, display.nativeOrigin.y),
+    ),
+  };
+}
+
+/** Convert screen pixels to DIP on Linux (inverse of dipToScreenPointLinux). For renderer payload. */
+function screenPointToDipLinux(screenPoint: Point): Point {
+  const displays = screen.getAllDisplays();
+  for (const display of displays) {
+    const scale = (v: number, bound: number, native: number) =>
+      (v - bound + native) * display.scaleFactor;
+    const left = scale(display.bounds.x, display.bounds.x, display.nativeOrigin.x);
+    const top = scale(display.bounds.y, display.bounds.y, display.nativeOrigin.y);
+    const right = left + display.bounds.width * display.scaleFactor;
+    const bottom = top + display.bounds.height * display.scaleFactor;
+    if (
+      screenPoint.x >= left &&
+      screenPoint.x < right &&
+      screenPoint.y >= top &&
+      screenPoint.y < bottom
+    ) {
+      const inv = (px: number, bound: number, native: number) =>
+        px / display.scaleFactor + bound - native;
+      return {
+        x: Math.round(inv(screenPoint.x, display.bounds.x, display.nativeOrigin.x)),
+        y: Math.round(inv(screenPoint.y, display.bounds.y, display.nativeOrigin.y)),
+      };
+    }
+  }
+  return screenPoint;
+}
+
 export class Shortcuts {
   private actions: ShortcutAction[] = [];
   private stashScroll = false;
   private logKeys = false;
   private areaTracker: WidgetAreaTracker;
   private clipboard: HostClipboard;
-  /** Cursor position at the moment the price-check hotkey (e.g. Ctrl+D) was pressed. Used for auto-sell. */
+  /** Cursor position (screen pixels) at the moment the price-check hotkey was pressed. Single source of truth for auto-sell. */
   private lastPriceCheckCursorPosition: { x: number; y: number } | null = null;
+  /** Last cursor position from uiohook mousemove (screen pixels). Used for price-check so we record position at keypress time, not after focus/overlay changes. */
+  private lastUiohookCursor: { x: number; y: number } | null = null;
 
   static async create(
     logger: Logger,
@@ -61,6 +111,10 @@ export class Shortcuts {
     this.areaTracker = new WidgetAreaTracker(server, overlay);
     this.clipboard = new HostClipboard(logger);
 
+    uIOhook.on("mousemove", (e: UiohookMouseEvent) => {
+      this.lastUiohookCursor = { x: e.x, y: e.y };
+    });
+
     this.poeWindow.on("active-change", (isActive) => {
       process.nextTick(() => {
         if (isActive === this.poeWindow.isActive) {
@@ -77,8 +131,17 @@ export class Shortcuts {
       if (e.action === "stash-search") {
         stashSearch(e.text, this.clipboard, this.overlay);
       } else if (e.action === "ctrl-left-click") {
+        // Prefer position from renderer (DIP); fallback to main-stored (already screen pixels on Linux).
         const position =
-          this.lastPriceCheckCursorPosition ?? e.position ?? undefined;
+          e.position != null && process.platform === "linux"
+            ? dipToScreenPointLinux(e.position)
+            : (e.position ?? this.lastPriceCheckCursorPosition ?? undefined);
+        this.logger.write(
+          `debug [Shortcuts] ctrl-left-click: renderer position=${JSON.stringify(e.position)} main-stored=${JSON.stringify(this.lastPriceCheckCursorPosition)} final=${JSON.stringify(position)}`,
+        );
+        if (position != null) {
+          this.lastPriceCheckCursorPosition = position;
+        }
         ctrlLeftClick(this.overlay, position);
       }
     });
@@ -218,27 +281,45 @@ export class Shortcuts {
           } else if (entry.action.type === "copy-item") {
             const { action } = entry;
 
-            const pressPosition = screen.getCursorScreenPoint();
+            // Prefer uiohook cursor (recorded on mousemove) so position is correct when overlay had focus; fallback to Electron.
+            const fallbackPosition = screen.getCursorScreenPoint();
+            const positionForPriceCheck =
+              action.target === "price-check" && this.lastUiohookCursor != null
+                ? (process.platform === "linux"
+                    ? screenPointToDipLinux(this.lastUiohookCursor)
+                    : this.lastUiohookCursor)
+                : fallbackPosition;
+
             if (action.target === "price-check") {
-              this.lastPriceCheckCursorPosition = {
-                x: pressPosition.x,
-                y: pressPosition.y,
-              };
+              this.lastPriceCheckCursorPosition =
+                process.platform === "linux"
+                  ? (this.lastUiohookCursor ?? dipToScreenPointLinux(fallbackPosition))
+                  : { x: fallbackPosition.x, y: fallbackPosition.y };
+              this.logger.write(
+                `debug [Shortcuts] price-check hotkey: uiohook=${JSON.stringify(this.lastUiohookCursor)} stored screen px=${JSON.stringify(this.lastPriceCheckCursorPosition)} payload DIP=${JSON.stringify(positionForPriceCheck)}`,
+              );
             }
 
             this.clipboard
               .readItemText()
               .then((clipboard) => {
                 this.areaTracker.removeListeners();
-                this.server.sendEventTo("last-active", {
-                  name: "MAIN->CLIENT::item-text",
+                const itemTextPayload = {
+                  name: "MAIN->CLIENT::item-text" as const,
                   payload: {
                     target: action.target,
                     clipboard,
-                    position: pressPosition,
+                    position:
+                      action.target === "price-check"
+                        ? positionForPriceCheck
+                        : fallbackPosition,
                     focusOverlay: Boolean(action.focusOverlay),
                   },
-                });
+                };
+                this.server.sendEventTo(
+                  action.target === "price-check" ? "broadcast" : "last-active",
+                  itemTextPayload,
+                );
                 if (action.focusOverlay && this.overlay.wasUsedRecently) {
                   this.overlay.assertOverlayActive();
                 }

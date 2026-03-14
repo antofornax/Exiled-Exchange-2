@@ -382,13 +382,15 @@ export default defineComponent({
         return `https://${getTradeEndpoint()}/trade2/search/poe2/${itemFilters.value.trade.league}?q=${JSON.stringify(createTradeRequest(itemFilters.value, itemStats.value, props.item))}`;
       },
       onAutoSellItem() {
-        const position = props.itemPosition;
+        const position = props.itemPosition
+          ? { x: props.itemPosition.x, y: props.itemPosition.y }
+          : undefined;
         wm.hide(props.wmId);
         MainProcess.sendEvent({
           name: "CLIENT->MAIN::user-action",
           payload: {
             action: "ctrl-left-click",
-            ...(position && { position: { x: position.x, y: position.y } }),
+            position,
           },
         });
       },
