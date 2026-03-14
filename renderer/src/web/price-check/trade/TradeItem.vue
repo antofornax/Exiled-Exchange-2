@@ -2,6 +2,8 @@
   <!-- Render nothing directly, all behavior is applied to the element passed via ref -->
   <tr
     ref="target"
+    class="cursor-pointer"
+    @click="$emit('select')"
     @mouseenter="isHovered = true"
     @mouseleave="isHovered = false"
   >
@@ -133,6 +135,7 @@ import { ItemCategory } from "@/parser";
 
 export default defineComponent({
   name: "TradeItem",
+  emits: ["select"],
   props: {
     result: {
       type: Object as PropType<

@@ -213,6 +213,8 @@ type IpcUserAction = Event<
       position?: { x: number; y: number };
       /** If set, after the ctrl+click type this price and press Enter. */
       price?: string;
+      /** If set (not "none"), run currency selection clicks before typing price. */
+      currency?: "annulment" | "divine" | "exalted" | "chaos";
     }
 >;
 

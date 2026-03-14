@@ -78,6 +78,7 @@
               :show-seller="showSeller"
               :item-level="filters.itemLevel"
               :quality="filters.quality"
+              @select="$emit('select-result', { priceAmount: result.priceAmount, currency: result.priceCurrency })"
             />
           </template>
         </tbody>
@@ -146,6 +147,7 @@ const SHOW_RESULTS = 20;
 
 export default defineComponent({
   components: { OnlineFilter, TradeLinks, TradeItem, UiErrorBox, UiPopover },
+  emits: ["select-result"],
   props: {
     filters: {
       type: Object as PropType<ItemFilters>,

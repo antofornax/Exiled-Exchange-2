@@ -144,6 +144,7 @@ export class Shortcuts {
         }
         ctrlLeftClick(this.overlay, position, {
           price: e.price,
+          currency: e.currency,
           clipboard: this.clipboard,
         });
       }

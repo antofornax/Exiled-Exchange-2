@@ -95,7 +95,24 @@
             <tr v-if="!result" :key="idx">
               <td colspan="100" class="text-transparent">***</td>
             </tr>
-            <tr v-else :key="result.id">
+            <tr
+              v-else
+              :key="result.id"
+              class="cursor-pointer"
+              @click="
+                $emit('select-result', {
+                  priceAmount: Number(
+                    (result.exchangeAmount / result.itemAmount).toFixed(4),
+                  ),
+                  currency:
+                    selectedCurr === 'xchgExalted'
+                      ? 'exalted'
+                      : selectedCurr === 'xchgChaos'
+                        ? 'chaos'
+                        : 'divine',
+                })
+              "
+            >
               <td class="px-2">
                 {{
                   Number((result.exchangeAmount / result.itemAmount).toFixed(4))
@@ -185,6 +202,7 @@ const slowdown = artificialSlowdown(900);
 
 export default defineComponent({
   components: { OnlineFilter, TradeLinks, UiErrorBox },
+  emits: ["select-result"],
   props: {
     filters: {
       type: Object as PropType<ItemFilters>,
