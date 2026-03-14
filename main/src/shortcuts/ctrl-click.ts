@@ -45,8 +45,10 @@ export function ctrlLeftClick(
       options.clipboard.restoreShortly((clipboard) => {
         clipboard.writeText(options.price!);
         uIOhook.keyTap(Key.V, [modifier]);
-        uIOhook.keyTap(Key.Enter);
       });
+      // Small random delay before Enter for more human-like behavior (e.g. 60–180 ms)
+      await delay(60 + Math.random() * 120);
+      uIOhook.keyTap(Key.Enter);
     }
   })().catch(() => {});
 }
