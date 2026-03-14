@@ -146,6 +146,7 @@ export class Shortcuts {
           price: e.price,
           currency: e.currency,
           clipboard: this.clipboard,
+          itemHeight: e.itemHeight,
         });
       }
     });

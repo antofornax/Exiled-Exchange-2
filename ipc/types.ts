@@ -215,6 +215,8 @@ type IpcUserAction = Event<
       price?: string;
       /** If set (not "none"), run currency selection clicks before typing price. */
       currency?: "annulment" | "divine" | "exalted" | "chaos";
+      /** Item height in inventory squares (1–4). 3 and 4 apply Y offset to currency/price UI clicks. */
+      itemHeight?: number;
     }
 >;
 

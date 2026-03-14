@@ -434,13 +434,14 @@ export default defineComponent({
       wm.hide(props.wmId);
       const currency =
         autoSellCurrency.value !== "none" ? autoSellCurrency.value : undefined;
-      MainProcess.sendEvent({
+        MainProcess.sendEvent({
         name: "CLIENT->MAIN::user-action",
         payload: {
           action: "ctrl-left-click",
           position,
           price,
           currency,
+          itemHeight: props.item?.info?.h,
         },
       });
     };

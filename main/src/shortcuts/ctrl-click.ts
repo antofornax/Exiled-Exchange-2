@@ -97,6 +97,13 @@ function enablePointer(ids: number[]): void {
  * Used by the "Auto sell item" button.
  * Position is rounded to nearest pixel once here so the click is within 1px of intended (≤5px spec).
  */
+/** Y offset (pixels) for currency/price UI clicks: 1–2 height = 0, 3 height = +23, 4 height = +46. */
+function currencyClickYOffset(itemHeight: number | undefined): number {
+  if (itemHeight === 3) return 23;
+  if (itemHeight === 4) return 46;
+  return 0;
+}
+
 export function ctrlLeftClick(
   overlay: OverlayWindow,
   position?: { x: number; y: number },
@@ -104,8 +111,12 @@ export function ctrlLeftClick(
     price?: string;
     currency?: AutoSellCurrency;
     clipboard: HostClipboard;
+    /** Item height in inventory squares (1–4). 3 and 4 apply Y offset to UI clicks. */
+    itemHeight?: number;
   },
 ): void {
+  const yOffset = currencyClickYOffset(options?.itemHeight);
+
   (async () => {
     overlay.assertGameActive();
     await delay(120);
@@ -127,12 +138,12 @@ export function ctrlLeftClick(
 
       if (options?.currency) {
         await delay(350);
-        clickAt(CURRENCY_CLICKS.dropdown.x, CURRENCY_CLICKS.dropdown.y);
+        clickAt(CURRENCY_CLICKS.dropdown.x, CURRENCY_CLICKS.dropdown.y + yOffset);
         await smallDelay();
         const currPos = CURRENCY_CLICKS[options.currency];
-        clickAt(currPos.x, currPos.y);
+        clickAt(currPos.x, currPos.y + yOffset);
         await smallDelay();
-        clickAt(CURRENCY_CLICKS.priceBox.x, CURRENCY_CLICKS.priceBox.y);
+        clickAt(CURRENCY_CLICKS.priceBox.x, CURRENCY_CLICKS.priceBox.y + yOffset);
         await smallDelay();
         await delay(150);
       }
