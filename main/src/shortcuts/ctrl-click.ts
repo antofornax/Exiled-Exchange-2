@@ -7,24 +7,24 @@ import type { HostClipboard } from "./HostClipboard";
 const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-/** Random delay 30–80 ms between actions for more human-like behavior. */
-const smallDelay = () => delay(30 + Math.random() * 50);
+/** Random delay 5–15 ms between actions. */
+const smallDelay = () => delay(5 + Math.random() * 10);
 
 type AutoSellCurrency = "annulment" | "divine" | "exalted" | "chaos";
 
 /** Screen positions for currency selection (game UI). */
 const CURRENCY_CLICKS = {
-  dropdown: { x: 2343, y: 1805 },
-  exalted: { x: 2294, y: 1835 },
-  divine: { x: 2336, y: 1915 },
-  chaos: { x: 2325, y: 1937 },
-  annulment: { x: 2339, y: 2048 },
-  priceBox: { x: 2194, y: 1810 },
+  dropdown: { x: 2338, y: 1912 },
+  exalted: { x: 2338, y: 1944 },
+  divine: { x: 2338, y: 2024 },
+  chaos: { x: 2338, y: 2049 },
+  annulment: { x: 2338, y: 2155 },
+  priceBox: { x: 2200, y: 1915 },
 } as const;
 
 function clickAt(x: number, y: number) {
   if (process.platform !== "linux") return;
-  execSync(`xdotool mousemove --sync ${Math.round(x)} ${Math.round(y)} sleep 0.12 click 1 sleep 0.15`, {
+  execSync(`xdotool mousemove --sync ${Math.round(x)} ${Math.round(y)} sleep 0.03 click 1 sleep 0.04`, {
     stdio: "ignore",
     timeout: 2000,
   });
@@ -119,7 +119,7 @@ export function ctrlLeftClick(
 
   (async () => {
     overlay.assertGameActive();
-    await delay(120);
+    await delay(40);
 
     const disabledPointerIds = disablePointer();
     try {
@@ -129,15 +129,15 @@ export function ctrlLeftClick(
         const y = position ? Math.round(position.y) : "";
         const movePart =
           x !== "" && y !== ""
-            ? `mousemove --sync ${x} ${y} sleep 0.2 `
+            ? `mousemove --sync ${x} ${y} sleep 0.05 `
             : "";
-        const cmd = `xdotool ${movePart}keydown control sleep 0.15 click 1 sleep 0.1 keyup control`;
+        const cmd = `xdotool ${movePart}keydown control sleep 0.04 click 1 sleep 0.03 keyup control`;
         execSync(cmd, { stdio: "ignore", timeout: 2000 });
       }
       // TODO: Windows/macOS - use platform-specific input simulation
 
       if (options?.currency) {
-        await delay(350);
+        await delay(80);
         clickAt(CURRENCY_CLICKS.dropdown.x, CURRENCY_CLICKS.dropdown.y + yOffset);
         await smallDelay();
         const currPos = CURRENCY_CLICKS[options.currency];
@@ -145,11 +145,11 @@ export function ctrlLeftClick(
         await smallDelay();
         clickAt(CURRENCY_CLICKS.priceBox.x, CURRENCY_CLICKS.priceBox.y + yOffset);
         await smallDelay();
-        await delay(150);
+        await delay(40);
       }
 
       if (options?.price != null && options.price.length > 0 && options.clipboard) {
-        if (!options?.currency) await delay(350);
+        if (!options?.currency) await delay(80);
         const modifier =
           process.platform === "darwin" ? Key.Meta : Key.Ctrl;
         uIOhook.keyTap(Key.A, [modifier]);
