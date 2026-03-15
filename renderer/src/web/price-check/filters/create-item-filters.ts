@@ -5,7 +5,7 @@ import { ModifierType } from "@/parser/modifiers";
 import { BaseType, ITEM_BY_REF } from "@/assets/data";
 import { CATEGORY_TO_TRADE_ID } from "../trade/pathofexile-trade";
 import { PriceCheckWidget } from "@/web/overlay/widgets";
-import { isArmourOrWeaponOrCaster } from "@/parser/Parser";
+import { isArmourOrWeaponOrCaster, getMaxSockets } from "@/parser/Parser";
 import { ARMOUR, WEAPON } from "@/parser/meta";
 import { maxUsefulItemLevel } from "./common";
 
@@ -254,13 +254,20 @@ export function createFilters(
     };
   }
 
-  if (item.augmentSockets) {
-    const current = item.augmentSockets.current ?? 0;
+  const maxSockets = getMaxSockets(item);
+  const canHaveAugmentSockets =
+    maxSockets > 0 &&
+    (isArmourOrWeaponOrCaster(item.category) ||
+      item.info.refName === "Darkness Enthroned");
+  if (item.augmentSockets || canHaveAugmentSockets) {
+    const current = item.augmentSockets?.current ?? 0;
+    const normal = item.augmentSockets?.normal ?? maxSockets;
+    const empty = item.augmentSockets?.empty ?? maxSockets;
     filters.augmentSockets = {
       value: current,
-      disabled: current <= item.augmentSockets.normal,
+      disabled: current <= normal,
     };
-    if (item.augmentSockets.empty > 0 && item.rarity !== ItemRarity.Unique) {
+    if (empty > 0 && item.rarity !== ItemRarity.Unique) {
       const type = isArmourOrWeaponOrCaster(item.category);
       if (
         opts.autoFillEmptyAugmentSockets &&

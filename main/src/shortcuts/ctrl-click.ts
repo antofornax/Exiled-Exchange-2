@@ -150,8 +150,12 @@ export function ctrlLeftClick(
 
       if (options?.price != null && options.price.length > 0 && options.clipboard) {
         if (!options?.currency) await delay(80);
+        // Give the price box time to receive focus before Ctrl+A
+        await delay(160);
         const modifier =
           process.platform === "darwin" ? Key.Meta : Key.Ctrl;
+        uIOhook.keyTap(Key.A, [modifier]);
+        await delay(25);
         uIOhook.keyTap(Key.A, [modifier]);
         await smallDelay();
         options.clipboard.restoreShortly((clipboard) => {
